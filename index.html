@@ -1,0 +1,870 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Li's portfolio</title><meta name="description" content="姜漓的作品集。把光标移到字上，看看藏在字里的插画。">
+<style>
+:root{color-scheme:light;--paper:#f5f4f2;--ink:#171513;--line:#d6d2cd;--serif:"Songti SC","Noto Serif CJK SC","Source Han Serif SC",SimSun,serif}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--serif)}a{color:inherit;text-decoration:none}a:focus-visible,button:focus-visible{outline:1px dashed;outline-offset:6px}header{height:56px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 4vw;font-size:13px;letter-spacing:.12em}header a:last-child{justify-self:end}header a:hover,footer a:hover{text-decoration:underline;text-underline-offset:.35em}.seal{font-size:19px;letter-spacing:0}.hero{min-height:calc(100svh - 56px);display:grid;grid-template-rows:1fr auto;padding:clamp(2.7rem,8vh,8rem) 3vw 1.6rem;text-align:center}h1{margin:0;align-self:start;font-size:clamp(4.4rem,17.8vw,16.5rem);font-weight:600;letter-spacing:-.065em;line-height:.96}.row{display:flex;justify-content:center;align-items:center;gap:.035em}.row+.row{margin-top:.065em}.word{position:relative;display:inline-grid;place-items:center;appearance:none;color:inherit;font:inherit;letter-spacing:inherit;line-height:inherit;border:0;padding:0 .035em .04em 0;background:none;cursor:crosshair;isolation:isolate}.name{font-style:italic;margin-right:.04em}.glyph,.figure{grid-area:1/1;transition:opacity .32s ease,transform .48s cubic-bezier(.21,.75,.3,1),filter .36s;pointer-events:none}.glyph{display:block}.figure{position:absolute;width:100%;height:83%;object-fit:contain;opacity:0;filter:grayscale(1) blur(3px);transform:scale(.96) translateY(3%)}.word:hover .glyph,.word.on .glyph,.word:focus-visible .glyph{opacity:0;filter:blur(1.4px)}.word:hover .figure,.word.on .figure,.word:focus-visible .figure{opacity:1;filter:grayscale(1);transform:scale(1)}.hint{justify-self:center;display:grid;gap:.55rem;font-size:11px;letter-spacing:.18em;color:#514c46;margin-top:1.6rem}.hint span{font-size:19px;line-height:1}.work{margin:0 5vw;padding:4rem 0 5rem;border-top:1px solid var(--line)}.work h2{font-size:clamp(2.6rem,7vw,5rem);font-weight:500;margin:.5em 0}.label,footer{font-size:12px;letter-spacing:.14em}.empty{border-top:1px solid var(--line);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:1rem;padding:1.4rem 0;color:#514c46}footer{padding:1.5rem 5vw;display:flex;justify-content:space-between}@media(max-width:650px){header{height:48px}.hero{min-height:calc(100svh - 48px);grid-template-rows:1fr auto;padding-top:18vh}h1{font-size:25vw}.row+.row{margin-top:.12em}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.glyph,.figure{transition:none}}
+.work {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0,1fr) minmax(0,2.4fr) minmax(0,1fr);
+  align-items: stretch;
+  min-height: 85svh;
+  gap: clamp(8px,3vw,48px);
+  margin: 0;
+  padding: clamp(30px,6vh,76px) 4vw;
+}
+.project-side { display: grid; grid-template-rows: repeat(2,minmax(0,1fr)); align-items: center; gap: 24px; }
+.project {
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+  background: none;
+  border: 0;
+  padding: 12px 2px;
+  font: inherit;
+  font-size: clamp(11px,1.25vw,17px);
+  color: inherit;
+  cursor: pointer;
+}
+.project-mark { display: grid; place-items: center; width: 46px; height: 40px; font-size: clamp(19px,3vw,38px); line-height: 1; transition: transform .25s; }
+.project-name { white-space: nowrap; text-align: center; }
+.project.active .project-mark { transform: translateY(-3px) rotate(-9deg) scale(1.12); }
+.project.active .project-name { text-decoration: underline; text-underline-offset: .35em; }
+.preview { align-self: center; justify-self: center; width: min(100%, 45vh, 430px); aspect-ratio: 805/1002; isolation: isolate; position: relative; }
+.preview-window { position: absolute; inset: 6.3% 8% 6.3%; overflow: hidden;
+  clip-path: polygon(0 100%, 0 35%, 2% 27%, 7% 21%, 10% 13%, 18% 10%, 25% 6%, 33% 3%, 42% 0, 50% 0, 58% 0, 67% 3%, 75% 6%, 82% 10%, 90% 13%, 93% 21%, 98% 27%, 100% 35%, 100% 100%); }
+.preview-image {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  inset: 0;
+  object-fit: cover;
+  opacity: 0;
+  transform: scale(1.045);
+  transition: opacity .28s ease, transform .45s ease;
+}
+.preview-image[data-project="3"] { object-position: 54% center; }
+.preview-image[data-project="4"] { object-position: 53% center; }
+.preview-image.active { opacity: 1; transform: scale(1); }
+.star-frame { position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none; }
+@media(max-width: 600px) {
+  .work { min-height: 70svh; padding-inline: 2.5vw; gap: 7px; grid-template-columns: 1fr 2.8fr 1fr; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .project-mark, .preview-image { transition: none; }
+}
+
+.project-cricket { display: block; width: 46px; height: 34px; object-fit: contain; }
+.project-emblem { display: block; width: 46px; height: 40px; object-fit: contain; }
+.detail[hidden] { display: none; }
+body.viewing-project > :is(header,main,footer) { display: none; }
+body.viewing-project { background: var(--paper); }
+.detail { color: var(--ink); background: var(--paper); }
+.detail-nav {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0 5vw; min-height: 58px; font-size: 13px; letter-spacing: .08em;
+}
+.detail-cover { color: #fff;
+  position: relative; isolation: isolate; min-height: 580px;
+  height: min(84svh, 940px); display: flex; align-items: flex-end;
+  justify-content: space-between; gap: 24px; padding: clamp(22px,5vw,82px);
+}
+.detail-cover::after {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(0deg, rgba(0,0,0,.91), transparent 50%);
+}
+.detail-poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
+.detail[data-id="1"] .detail-poster { object-position: center 54%; }
+.detail[data-id="4"] .detail-poster { object-position: center; }
+.detail-title { margin: 0; font-size: clamp(42px, 8vw, 125px); font-weight: 500; line-height: 1; }
+.detail[data-id="1"] .detail-title {
+  font-family: "Songti SC", "STSong", "Noto Serif CJK SC", serif;
+  font-weight: 900; letter-spacing: .16em; font-size: clamp(68px,11vw,170px);
+  text-shadow: 1px 1px 0 #d3bb8a55, 0 3px 22px #0006;
+}
+.detail[data-id="1"] .detail-title img {
+  display: block; width: clamp(230px,29vw,450px); height: auto;
+  max-height: 57svh; object-fit: contain; object-position: left bottom;
+  filter: drop-shadow(0 2px 12px #0004);
+}
+.detail[data-id="2"] .detail-title { display: flex; align-items: baseline; gap: .16em; }
+.detail[data-id="2"] .detail-title em {
+  font-family: "Bodoni 72", "Didot", "Times New Roman", serif;
+  font-size: 1.3em; font-weight: 400; letter-spacing: -.07em; line-height: .8;
+}
+.detail[data-id="2"] .detail-title span {
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-weight: 200; font-size: .62em; letter-spacing: .18em;
+}
+.detail[data-id="3"] .detail-title {
+  font-family: "Baskerville", "Times New Roman", serif; font-style: italic;
+  font-weight: 400; letter-spacing: .015em; font-size: clamp(42px,7.5vw,112px);
+}
+.detail[data-id="3"] .detail-title img {
+  display: block; width: clamp(310px,43vw,650px); height: auto;
+  max-width: 84vw; max-height: 60svh; object-fit: contain; object-position: left bottom;
+}
+.detail[data-id="4"] .detail-title {
+  position: absolute; left: clamp(22px,5vw,82px); bottom: clamp(28px,5vw,82px);
+  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-weight: 200; letter-spacing: .2em; font-size: clamp(30px,7.2vw,112px);
+  white-space: nowrap; flex-shrink: 0;
+}
+.detail-credit { text-align: right; white-space: nowrap; font-size: clamp(13px, 1.7vw, 24px); line-height: 1.6; }
+.detail-credit small { display: block; font-size: 12px; }
+.detail-stills { min-height: 100svh; display: grid; align-content: center; padding: 7vh 5vw; }
+.detail-stills h2 { margin: 0 0 1rem; font-size: 14px; font-weight: 500; letter-spacing: .13em; }
+.detail-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 3px; }
+.detail-grid div { aspect-ratio: 16/10; overflow: hidden; }
+.detail-grid img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: var(--position,center); transform: scale(var(--zoom,1)); transform-origin: var(--position,center); }
+@media (max-width: 650px) {
+  .detail-cover { color: #fff; min-height: 0; height: 78svh; align-items: flex-end; }
+  .detail-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+.detail-grid.has-stills div { aspect-ratio: 16/9; }
+.detail-grid.has-stills { gap: 8px; }
+.detail-grid.has-stills img { object-fit: cover; }
+.project-illustration { display: none; }
+.detail[data-id="2"] .project-illustration-2,
+.detail[data-id="3"] .project-illustration-3 {
+  min-height: 100svh; padding: 6vh 6vw;
+  display: flex; align-items: center; justify-content: center;
+}
+.project-illustration img {
+  display: block; width: auto; height: auto;
+  max-width: min(88vw, 1100px); max-height: 88svh; object-fit: contain;
+}
+.grave-monument { position: relative; width: min(94vw,820px); container-type: inline-size; }
+.grave-monument > img { width: 100%; max-width: none; max-height: none; }
+.grave-inscription {
+  position: absolute; top: 50%; left: 27%; width: 46%;
+  color: #45413d; font-family: "Songti SC", "Noto Serif CJK SC", serif;
+  font-size: 2cqw; line-height: 1.85; text-align: center;
+}
+.grave-inscription section + section { margin-top: 2.5cqw; }
+.grave-inscription h3 { margin: 0 0 1cqw; font-size: 2.2cqw; font-weight: 600; letter-spacing: .15em; }
+.grave-inscription p { margin: 0; overflow-wrap: anywhere; }
+.aquarium-monument { position: relative; width: min(94vw,1200px); container-type: inline-size; }
+.aquarium-monument > img { width: 100%; max-width: none; max-height: none; }
+.aquarium-inscription {
+  position: absolute; left: 30%; top: 29%; width: 40%; text-align: center;
+  font-family: "Songti SC", "Noto Serif CJK SC", serif; color: #45413d;
+  font-size: 1.2cqw; line-height: 1.75;
+}
+.aquarium-inscription h3 { margin: 0 0 1.3cqw; font-size: 1.6cqw; letter-spacing: .15em; font-weight: 600; }
+.aquarium-inscription p { margin: 0; }
+.aquarium-inscription .aquarium-role-heading { margin-top: 1.8cqw; }
+.project-process { display: none; }
+.detail[data-id="1"] .project-process {
+  display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+  gap: 8px; align-items: stretch;
+  min-height: 95svh; padding: 7vh 5vw 10vh; border-top: 1px solid var(--line);
+}
+.project-process figure {
+  min-width: 0; margin: 0; padding: clamp(14px, 2.5vw, 36px);
+  border: 1px solid var(--ink); text-align: center;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.process-storyboard img { display: block; width: 100%; max-height: 70svh; object-fit: contain; }
+.project-process figcaption { margin-top: 1.25rem; font-size: 16px; letter-spacing: .12em; text-align: center; }
+.process-window { overflow: hidden; }
+.process-track { display: flex; width: max-content; animation: process-scroll 13s linear infinite; }
+.process-carousel:is(.paused, .zooming, .center-hold) .process-track { animation-play-state: paused; }
+.process-strip { display: flex; flex: none; gap: .75rem; padding-right: .75rem; }
+.process-strip button { background: transparent; border: 0; padding: 0; cursor: zoom-in; }
+.process-carousel { position: relative; }
+.process-toggle {
+  position: absolute; z-index: 20; right: clamp(18px, 3vw, 44px);
+  top: 18px; width: 36px; height: 36px; display: grid; place-items: center;
+  border: 0; border-radius: 50%; background: #191714db; color: white; cursor: pointer;
+}
+.process-toggle [hidden] { display: none; }
+@keyframes process-scroll { to { transform: translateX(-50%); } }
+.process-lightbox { max-width: none; max-height: none; width: 100%; height: 100%; background: transparent; color: #fff; padding: 5svh 5vw; border: none; }
+.process-lightbox[open] { display: grid; place-items: center; }
+.process-lightbox::backdrop { background: #141210e6; }
+.process-lightbox img { display: block; max-width: 90vw; max-height: 87svh; object-fit: contain; }
+.process-close { position: absolute; right: 2vw; top: 2vh; color: inherit; background: #141210; border: 1px solid #fff8; border-radius: 50%; width: 42px; height: 42px; font: 25px/1 sans-serif; cursor: pointer; }
+body:has(.process-lightbox[open]) { overflow: hidden; }
+@media (max-width: 720px) {
+  .detail[data-id="1"] .project-process { grid-template-columns: 1fr; }
+  .process-storyboard img { max-height: none; }
+}
+.process-window { container-type: inline-size; padding: 8cqw 0 0; }
+.process-strip { align-items: end; }
+.process-strip button { width: 46cqw; aspect-ratio: 4/3; position: relative; z-index: var(--card-layer, 0); }
+.process-strip img {
+  display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; background: transparent;
+  transform: translateX(var(--card-shift, 0px)) scale(var(--card-scale, .82)); transform-origin: center bottom;
+}
+
+.process-editorial {
+  border: 1px solid var(--ink); padding: clamp(24px,4vw,64px);
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: space-between; gap: 44px; text-align: center; min-height: 78svh;
+}
+.process-editorial h2 { font-size: clamp(40px,5vw,72px); font-weight: 600; margin: 0; }
+.process-copy { max-width: 38em; }
+.process-copy h3 { font-size: 16px; font-weight: 500; margin: 0 0 16px; }
+.process-copy p { font-size: 14px; line-height: 1.9; margin: 0; color: #625e58; }
+.process-editorial .process-emblem { width: 78px; height: 50px; object-fit: contain; }
+
+.process-editorial {
+  display: grid; grid-template-rows: auto auto minmax(72px, 1fr) auto 1fr minmax(72px, auto);
+  justify-content: stretch; justify-items: center; gap: 20px;
+  padding: clamp(28px, 3.3vw, 52px); min-height: 88svh;
+}
+.process-roles { width: 100%; display: flex; justify-content: space-between; text-align: left; font-weight: 700; font-size: clamp(17px, 1.9vw, 25px); }
+.process-roles-top { margin-top: 24px; }
+.process-copy { width: 100%; max-width: 38em; text-align: center; font-size: 14px; line-height: 1.75; }
+.process-editorial .process-emblem { width: 90px; height: 70px; object-fit: contain; align-self: center; }
+
+.process-strip img.process-triptych { object-fit: fill; }
+.project4-process { display: none; }
+.detail[data-id="4"] .project4-process {
+  display: grid; grid-template-columns: minmax(0,.9fr) minmax(0,1.1fr);
+  gap: 8px; padding: 7vh 5vw 10vh; min-height: 100svh;
+  border-top: 1px solid var(--line);
+}
+.process-editorial .film-editorial-emblem { width: 90px; height: 70px; object-fit: contain; align-self: center; }
+.film-panel { position: relative; border: 1px solid var(--ink); min-width: 0;
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+  min-height: 88svh; padding: 70px 30px 86px;
+}
+.film-window { height: 72svh; width: min(80%, 380px); overflow: hidden;
+  mask-image: linear-gradient(transparent,#000 7%,#000 93%,transparent);
+}
+.film-track { background: #22211f; position: relative; animation: film-down 30s linear infinite; }
+.film-sequence { position: relative; padding: 0 28px; }
+.film-sequence::before,.film-sequence::after {
+  content: ''; position: absolute; top: 0; bottom: 0; width: 10px;
+  background: repeating-linear-gradient(to bottom,transparent 0 8px,var(--paper) 8px 20px,transparent 20px 28px);
+}
+.film-sequence::before { left: 8px; } .film-sequence::after { right: 8px; }
+.film-frame { padding: 12px 0 0; position: relative; }
+.film-frame :is(img,video) { width: 100%; aspect-ratio: 16/9; display: block; object-fit: cover; }
+.film-frame span { display: block; color: #e8dfc5; font: 9px/22px monospace; letter-spacing: .14em; }
+.film-toggle { position: absolute; top: 18px; right: 24px; z-index: 2; border: 0;
+  border-radius: 50%; background: #292724; color: white; width: 36px; height: 36px; cursor: pointer;
+}
+.film-panel.paused .film-track { animation-play-state: paused; }
+.film-note { position: absolute; bottom: 15px; margin: 0; text-align: center; font-size: 14px; line-height: 1.8; }
+.film-note small { color: #79756e; font-size: 12px; }
+@keyframes film-down { from { transform: translateY(-50%); } to { transform: translateY(0); } }
+@media(max-width:720px) {
+  .detail[data-id="4"] .project4-process { grid-template-columns: 1fr; }
+  .film-window { width: min(86%,380px); }
+}
+@media(prefers-reduced-motion:reduce) { .film-track { animation-play-state: paused; } }
+.grave-gallery { display: none; }
+.detail[data-id="3"] .detail-stills { display: none; }
+.detail[data-id="3"] .grave-gallery { display: block; height: 420svh; position: relative; }
+.grave-stage { position: sticky; top: 0; height: 100svh; overflow: hidden; perspective: 1100px; isolation: isolate; }
+.grave-card {
+  position: absolute; left: 50%; top: 50%; width: var(--grave-card-width, 210px);
+  aspect-ratio: 1920/896; margin: -80px 0 0 calc(var(--grave-card-width, 210px) / -2);
+  backface-visibility: visible; will-change: transform;
+}
+.grave-card img { display: block; width: 100%; height: 100%; object-fit: cover; box-shadow: 0 3px 12px #17151318; }
+
+.grave-card { margin-top: calc(var(--grave-card-width, 210px) * -.23333); }
+.grave-card { aspect-ratio: 16/9; }
+.grave-card img { box-shadow: none; }
+
+.grave-card .grave-inward-blur {
+  position: absolute; inset: 0; pointer-events: none;
+  filter: blur(var(--inward-blur, 0px));
+  opacity: 0;
+  mask-image: linear-gradient(var(--inward-angle, 90deg), transparent 35%, #000 90%);
+  -webkit-mask-image: linear-gradient(var(--inward-angle, 90deg), transparent 35%, #000 90%);
+}
+.grave-ripple {
+  position: absolute; width: 80px; height: 80px; margin: -40px;
+  border: 1px solid #777b7860; border-radius: 50%; pointer-events: none;
+  box-shadow: 0 0 0 9px #b1b6b01c, 0 0 0 19px #b1b6b012;
+  animation: grave-water .8s ease-out forwards;
+}
+@keyframes grave-water {
+  from { transform: scale(.1); opacity: .7; }
+  to { transform: scale(1.8); opacity: 0; }
+}
+
+.grave-card {
+  mask-image: var(--edge-mask, none);
+  -webkit-mask-image: var(--edge-mask, none);
+}
+.grave-card::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  box-shadow: inset 0 0 18px 5px #17151370;
+  opacity: var(--edge-wear, 0);
+}
+.hero { position: relative; display: block; height: calc(100svh - 56px); min-height: 420px; padding: 0; }
+.ink-canvas { display: block; width: 100%; height: 100%; }
+.ink-title { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.hero .hint { position: absolute; bottom: 5vh; left: 50%; transform: translateX(-50%); margin: 0; }
+
+html { overflow-y: auto; scroll-snap-type: none; }
+body { overflow-x: clip; }
+.gothic-scroll { overflow-anchor: none; }
+
+body:has(.gothic-scroll) > header {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 2;
+  padding-inline: 7vw;
+}
+.gothic-scroll {
+  background-image: url("assets/e7f4d030b055354935a2.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+.gothic-scroll .hero {
+  height: 100svh; min-height: 460px;
+}
+.gothic-scroll > .work {
+  min-height: 100svh; border-top: 0;
+  padding: 10vh 12vw 12vh;
+}
+.gothic-scroll .preview { width: min(100%, 49vh, 430px); }
+</style>
+</head>
+<body>
+<header><a href="#top">姜漓</a><span class="seal" aria-hidden="true">✦</span><a href="#works">作品索引 ↘</a></header>
+<main id="top"><div class="gothic-scroll">
+<section class="hero" aria-label="作品集首页">
+<h1 aria-label="姜漓的作品集"><span class="row"><button class="word name" type="button" aria-label="姜漓"><span class="glyph">姜漓</span><img class="figure" src="assets/6cbbbf05e4b93766fda1.png" alt=""></button><button class="word" type="button" aria-label="的"><span class="glyph">的</span><img class="figure" src="assets/834631f5aaa0d75bc435.png" alt=""></button></span><span class="row"><button class="word" type="button" aria-label="作品"><span class="glyph">作品</span><img class="figure" src="assets/da99b6898a83ab72f346.png" alt=""></button><button class="word" type="button" aria-label="集"><span class="glyph">集</span><img class="figure" src="assets/33e1723fd3ef40a76a70.png" alt=""></button></span></h1>
+<a class="hint" href="#works">下滑查看作品<span aria-hidden="true">↓</span></a>
+</section>
+<section class="work" id="works" aria-label="作品索引">
+  <div class="project-side">
+    <a class="project" data-project="1" href="#project-1"><span class="project-mark" aria-hidden="true"><img class="project-cricket" src="assets/9adcfad1517d977c4ae7.png" alt=""></span><span class="project-name">《促织》</span></a>
+    <a class="project" data-project="2" href="#project-2"><span class="project-mark" aria-hidden="true"><img class="project-emblem" src="assets/307a117390012eba1069.png" alt=""></span><span class="project-name">《cos委托》</span></a>
+  </div>
+  <div class="preview" aria-label="作品预览">
+    <div class="preview-window"><img class="preview-image" data-project="1" alt="促织-竹笼封面" src="assets/5547d2970ca081040cd4.png"><img class="preview-image" data-project="2" alt="截屏2026-11-16 16.39.07" src="assets/86d2d4901928dacef4a4.png"><img class="preview-image" data-project="3" alt="截屏2026-11-16 16.53.49" src="assets/610aec89bed52043caa8.png"><img class="preview-image" data-project="4" alt="截屏2026-11-17 15.45.34" src="assets/74f7a79bcceada44cdc7.png"></div>
+    <svg class="star-frame" viewBox="345 257 805 1002" aria-hidden="true">
+      <defs>
+        <filter id="arch-ink" color-interpolation-filters="sRGB">
+          <feColorMatrix type="matrix" values="
+            0 0 0 0 0
+            0 0 0 0 0
+            0 0 0 0 0
+            -.227 -.763 -.077 0 1"/>
+        </filter>
+      </defs>
+      <image href="assets/ac9dfeab7c3e65fdf41a.png" width="1372" height="1438" filter="url(#arch-ink)"/>
+    </svg>
+  </div>
+  <div class="project-side">
+    <a class="project" data-project="3" href="#project-3"><span class="project-mark" aria-hidden="true"><img class="project-emblem" src="assets/b598a807ff3e31bc3bb1.png" alt=""></span><span class="project-name">《living silently》</span></a>
+    <a class="project" data-project="4" href="#project-4"><span class="project-mark" aria-hidden="true"><img class="project-emblem" src="assets/cd2057ebb88090b1e3d4.png" alt=""></span><span class="project-name">《往返站台》</span></a>
+  </div>
+</section>
+
+</div></main><footer><span>姜漓的作品集</span><a href="#top">返回顶部 ↑</a></footer>
+<article class="detail" hidden aria-labelledby="detail-title">
+  <template data-cover="2"><img alt="" src="assets/aab8846faffa250cb0d8.png"></template>
+  <template data-cover="4"><img alt="" src="assets/a9085dad7e07d1000d79.png"></template>
+  <template data-cover="3"><img alt="" src="assets/a613093f12b19c18bf7b.png"></template>
+  <template data-cover="1"><img alt="" src="assets/1b25ecf8954768ba7599.png"></template>
+  <template data-brush-title><img src="assets/ef328bf841bd613842d0.png" alt="促织"></template><template data-hand-title><img src="assets/a0126305c5ac08f11892.png" alt="living silently"></template><template data-stills="4"><div><img alt="作品四静帧 1" src="assets/8b3270c80f6c2378f07b.jpg"></div><div><img alt="作品四静帧 2" src="assets/7b8f40b71129fc721887.jpg"></div><div><img alt="作品四静帧 3" src="assets/d70ab64443014fb06335.jpg"></div><div><img alt="作品四静帧 4" src="assets/cafe7cd640aab43ce0cf.jpg"></div><div><img alt="作品四静帧 5" src="assets/5dfa3b97ae7893f82f44.jpg"></div><div><img alt="作品四静帧 6" src="assets/2b8670d21ebcc3f6b948.jpg"></div></template><template data-stills="2"><div><img alt="作品二静帧 1" src="assets/d7e4d5a1fadcad61a05c.png"></div><div><img alt="作品二静帧 2" src="assets/4e55195b060589756458.png"></div><div><img alt="作品二静帧 3" src="assets/3809f234049b7cfe7410.png"></div><div><img alt="作品二静帧 4" src="assets/d9ee3933feb1edb17740.png"></div><div><img alt="作品二静帧 5" src="assets/ef093a192a38a097849b.jpg"></div><div><img alt="作品二静帧 6" src="assets/853c766cc1bf2541ddd7.jpg"></div></template><template data-stills="1"><div><img alt="《促织》静帧 1" src="assets/0ae8b30d2eaf02269332.jpg"></div><div><img alt="《促织》静帧 2" src="assets/d44d3c89140ad05d71e7.jpg"></div><div><img alt="《促织》静帧 3" src="assets/788bf7112c814bff4344.jpg"></div><div><img alt="《促织》静帧 4" src="assets/78ab936fc5b8e004c506.jpg"></div><div><img alt="《促织》静帧 5" src="assets/323000e78d02e8b239c0.jpg"></div><div><img alt="《促织》静帧 6" src="assets/3235d10564cf8086f4c9.jpg"></div></template><nav class="detail-nav" aria-label="作品详情导航">
+    <a href="#works">← 返回作品索引</a>
+    <a href="#top">姜漓的作品集</a>
+  </nav>
+  <section class="detail-cover">
+    <img class="detail-poster" alt="">
+    <h1 class="detail-title" id="detail-title" tabindex="-1"></h1>
+  </section>
+  <section class="detail-stills" aria-labelledby="stills-title">
+    <h2 id="stills-title">剧照拼贴 · 排版示意</h2>
+    <div class="detail-grid"></div>
+  </section>
+<svg width="0" height="0" aria-hidden="true"><defs><filter id="grave-clarity" color-interpolation-filters="sRGB"><feConvolveMatrix order="3" kernelMatrix="0 -.12 0 -.12 1.48 -.12 0 -.12 0" preserveAlpha="true"/></filter></defs></svg><section class="grave-gallery" aria-label="墓园动态静帧展示"><div class="grave-stage"><figure class="grave-card"><img src="assets/c4591e53d6d24c46f4cc.jpg" alt="墓园静帧 1"></figure><figure class="grave-card"><img src="assets/375022707be401f82d44.jpg" alt="墓园静帧 2"></figure><figure class="grave-card"><img src="assets/a0445ceb9f0970559acf.jpg" alt="墓园静帧 3"></figure><figure class="grave-card"><img src="assets/2a48ab73fce610261b3c.jpg" alt="墓园静帧 4"></figure><figure class="grave-card"><img src="assets/2cc9baba5aaca4ef7052.jpg" alt="墓园静帧 5"></figure><figure class="grave-card"><img src="assets/4e714c24e9928c2bd4cf.jpg" alt="墓园静帧 6"></figure></div></section><section class="project-illustration project-illustration-2" aria-label="哥特水族箱"><div class="aquarium-monument"><img src="assets/7ea836011359384f69a9.png" alt="哥特水族箱"><div class="aquarium-inscription"><h3>故事简介</h3><p>本片聚焦女性Coser的角色委托经历，记录她们如何扮演委托人喜爱的虚拟角色，并探讨情感陪伴背后的自我隐藏与身份边界。</p><h3 class="aquarium-role-heading">个人职责</h3><p>系统了解二次元文化、乙女游戏及Cos委托的服务模式与圈层特征，快速建立对陌生亚文化领域的认知。通过深度访谈与日常交流建立拍摄对象的信任关系，历时约一个半月持续跟拍，独立完成摄影、素材整理及后期剪辑。</p></div></div></section><section class="project-illustration project-illustration-3" aria-label="天使雕塑墓碑"><div class="grave-monument"><img src="assets/1d5983850617287198d6.png" alt="天使雕塑墓碑"><div class="grave-inscription"><section><h3>故事简介</h3><p>10分钟独立纪录片。故事讲述了英国墓园之旅对一个中国女孩对待生死的态度带来的转变。</p></section><section><h3>个人职责</h3><p>在伦敦跟拍三周时间，从跨文化的视角来构思纪录片主题。通过良好的双语沟通、表达理解能力，与拍摄对象建立深度信赖，并取得Highgate Cemetery、RCA等英国管控场地的内部拍摄许可。具备影像作品的英文评析能力，完成860字英文批判性评述。</p></section></div></div></section><section class="project-process" aria-label="《促织》分镜与视觉设定">
+  <section class="process-storyboard process-editorial" aria-label="促织项目介绍">
+    <h2>促织</h2>
+    <div class="process-roles process-roles-top"><span>导演</span><span>编剧</span></div>
+    <p class="process-copy process-synopsis">故事简介：《促织》是一个1分30秒的AI动画短片，改编自《聊斋志异》。故事表面上讲的是一个人因蟋蟀而遭遇祸福的奇幻事件，实际上是在讽刺封建统治者的荒唐与残暴。</p>
+    <div class="process-roles process-roles-bottom"><span>抽卡师</span><span>剪辑</span></div>
+    <img class="process-emblem" src="assets/9adcfad1517d977c4ae7.png" alt="" aria-hidden="true">
+    <p class="process-copy process-responsibility">个人职责：具备将创意内容转化为AIGC短片的完整制作能力，能够从传统IP中提炼故事并进行短片化改编，独立完成分镜、prompt设计、角色视觉开发及视频生成，熟悉ChatGPT与即梦 Seedance 2.5，并能够合理规划镜头时长与token使用，在控制生成成本同时保持角色及整体视觉风格的统一。</p>
+  </section>
+  <figure class="process-carousel">
+    <div class="process-window">
+      <div class="process-track">
+        <div class="process-strip"><button type="button" aria-label="放大第 1 张抽卡图"><img class="" src="assets/e198dc71ee4f13ff4706.png" alt="第 1 张抽卡图"></button><button type="button" aria-label="放大第 2 张抽卡图"><img class="" src="assets/d92b5765dffc951c23fc.png" alt="第 2 张抽卡图"></button><button type="button" aria-label="放大第 3 张抽卡图"><img class="" src="assets/146a6cef5550e7057955.png" alt="第 3 张抽卡图"></button><button type="button" aria-label="放大第 4 张抽卡图"><img class="" src="assets/a4efce6dd732304e97ba.png" alt="第 4 张抽卡图"></button><button type="button" aria-label="放大第 5 张抽卡图"><img class="process-triptych" src="assets/e04fde1e1c80166534da.png" alt="第 5 张抽卡图"></button></div>
+      </div>
+    </div>
+    <figcaption>人物和环境抽卡图</figcaption>
+    <button class="process-toggle" type="button" aria-label="暂停轮播">
+      <svg class="process-play-icon" width="15" height="15" viewBox="0 0 16 16" aria-hidden="true" hidden><path fill="currentColor" d="M5 2.5 13 8 5 13.5Z"/></svg>
+      <svg class="process-pause-icon" width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M4 3h3v10H4zm5 0h3v10H9z"/></svg>
+    </button>
+  </figure>
+  <dialog class="process-lightbox" aria-label="图片放大预览">
+    <button class="process-close" type="button" aria-label="关闭预览">×</button>
+    <img alt="">
+  </dialog>
+</section>
+<section class="project4-process" aria-label="作品四介绍与电影胶片">
+  <section class="process-editorial" aria-label="作品四项目介绍">
+    <h2>往返站台</h2>
+    <div class="process-roles process-roles-top"><span>导演</span><span>编剧</span></div>
+    <p class="process-copy process-synopsis">故事简介：10分钟虚构电影短片。影片围绕父母管控式善意谎言的伤害，以及都市人群缺失归属感的困境展开。</p>
+    <div class="process-roles process-roles-bottom"><span>摄影</span><span>剪辑</span></div>
+    <img class="film-editorial-emblem" src="assets/cd2057ebb88090b1e3d4.png" alt="" aria-hidden="true">
+    <p class="process-copy process-responsibility">个人职责：创作2182字文字剧本、49镜分镜剧本。作为导演带领15人的专业拍摄团队，在北京花两天时间顺利完成短片拍摄。实地考察了北京4个室内影视基地。熟悉监视器、对讲机、八角柔光罩、枪麦等多种影视器材。</p>
+  </section>
+  <section class="film-panel" aria-label="纵向循环电影胶片">
+    <button class="film-toggle" type="button" aria-label="暂停胶片滚动">Ⅱ</button>
+    <div class="film-window"><div class="film-track"><div class="film-sequence"><div class="film-frame"><video muted loop playsinline autoplay preload="auto" aria-label="作品四三秒片段 1" src="assets/42204e7bb5cb9d2e35c2.mp4"></video><span>01 / 00:03</span></div><div class="film-frame"><video muted loop playsinline autoplay preload="auto" aria-label="作品四三秒片段 2" src="assets/3c3a5c32dfbbf643fe12.mp4"></video><span>02 / 00:03</span></div><div class="film-frame"><video muted loop playsinline autoplay preload="auto" aria-label="作品四三秒片段 3" src="assets/da84f0efb2947858ba76.mp4"></video><span>03 / 00:03</span></div><div class="film-frame"><video muted loop playsinline autoplay preload="auto" aria-label="作品四三秒片段 4" src="assets/03f8583dfdfb2d8aa5b4.mp4"></video><span>04 / 00:03</span></div></div><div class="film-sequence" aria-hidden="true"><div class="film-frame"><video muted loop playsinline autoplay preload="auto" aria-label="作品四三秒片段 1" src="assets/42204e7bb5cb9d2e35c2.mp4"></video><span>01 / 00:03</span></div><div class="film-frame"><video muted loop playsinline autoplay preload="auto" aria-label="作品四三秒片段 2" src="assets/3c3a5c32dfbbf643fe12.mp4"></video><span>02 / 00:03</span></div><div class="film-frame"><video muted loop playsinline autoplay preload="auto" aria-label="作品四三秒片段 3" src="assets/da84f0efb2947858ba76.mp4"></video><span>03 / 00:03</span></div><div class="film-frame"><video muted loop playsinline autoplay preload="auto" aria-label="作品四三秒片段 4" src="assets/03f8583dfdfb2d8aa5b4.mp4"></video><span>04 / 00:03</span></div></div></div></div>
+  </section>
+</section>
+</article>
+<script>
+const words=[...document.querySelectorAll('.word')];
+function clear(except){words.forEach(w=>{if(w!==except)w.classList.remove('on')})}
+for(const word of words){
+ word.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'){clear(word);word.classList.add('on')}});
+ word.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse')word.classList.remove('on')});
+ word.addEventListener('click',()=>{if(matchMedia('(hover: none)').matches){clear(word);word.classList.toggle('on')}});
+}
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('.word'))clear()});
+const projects = [...document.querySelectorAll('.project')];
+const previews = [...document.querySelectorAll('.preview-image')];
+function showProject(id) {
+  for (const project of projects) project.classList.toggle('active', project.dataset.project === id);
+  for (const preview of previews) preview.classList.toggle('active', preview.dataset.project === id);
+}
+for (const project of projects) {
+  const id = project.dataset.project;
+  project.addEventListener('pointerenter', event => {
+    if (event.pointerType === 'mouse') showProject(id);
+  });
+  project.addEventListener('pointerleave', event => {
+    if (event.pointerType === 'mouse') showProject('');
+  });
+  project.addEventListener('focus', () => showProject(id));
+  project.addEventListener('blur', () => showProject(''));
+  project.addEventListener('click', () => showProject(id));
+}
+document.querySelector('.work').addEventListener('keydown', event => {
+  if (event.key === 'Escape') showProject('');
+});
+document.querySelector('.film-toggle').addEventListener('click', event => {
+  const paused = event.currentTarget.closest('.film-panel').classList.toggle('paused');
+  event.currentTarget.textContent = paused ? '▶' : 'Ⅱ';
+  event.currentTarget.setAttribute('aria-label', paused ? '播放胶片滚动' : '暂停胶片滚动');
+  syncFilmPlayback();
+});
+function syncFilmPlayback() {
+  const active = location.hash === '#project-4' && !document.hidden && !document.querySelector('.film-panel').classList.contains('paused');
+  document.querySelectorAll('.film-frame video').forEach(video => {
+    video.muted = true;
+    if (active) video.play().catch(() => {});
+    else video.pause();
+  });
+}
+addEventListener('hashchange', syncFilmPlayback);
+document.addEventListener('visibilitychange', syncFilmPlayback);
+syncFilmPlayback();
+const detail = document.querySelector('.detail');
+const detailTitle = detail.querySelector('.detail-title');
+const poster = detail.querySelector('.detail-poster');
+const stillGrid = detail.querySelector('.detail-grid');
+const crops = [
+  ['10% 30%', 1.24], ['52% 35%', 1.68], ['92% 30%', 1.38],
+  ['15% 77%', 1.5], ['52% 70%', 1.2], ['90% 76%', 1.65],
+];
+
+function syncProject() {
+  const id = /^#project-([1-4])$/.exec(location.hash)?.[1];
+  const preview = previews.find(image => image.dataset.project === id);
+  const wasOpen = !detail.hidden;
+  detail.hidden = !preview;
+  document.body.classList.toggle('viewing-project', Boolean(preview));
+
+  if (!preview) {
+    document.querySelector('.process-lightbox')?.close();
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
+    if (detail.contains(document.activeElement)) document.activeElement.blur();
+    document.title = "Li's portfolio";
+    if (wasOpen) document.querySelector(location.hash === '#top' ? '#top' : '#works').scrollIntoView({behavior: 'instant'});
+    return;
+  }
+
+  showProject('');
+  const project = projects.find(link => link.dataset.project === id);
+  detail.dataset.id = id;
+  detailTitle.textContent = project.querySelector('.project-name').textContent;
+  detailTitle.setAttribute('aria-label', detailTitle.textContent);
+  const titleText = detailTitle.textContent.replace(/[《》]/g, '');
+  detailTitle.textContent = titleText;
+  if (id === '2') {
+    detailTitle.replaceChildren();
+    const latin = document.createElement('em'); latin.textContent = 'cos';
+    const chinese = document.createElement('span'); chinese.textContent = '委托';
+    detailTitle.append(latin, chinese);
+  }
+  if (id === '1') {
+    detailTitle.replaceChildren(detail.querySelector('template[data-brush-title]').content.cloneNode(true));
+  }
+  if (id === '3') {
+    detailTitle.replaceChildren(detail.querySelector('template[data-hand-title]').content.cloneNode(true));
+  }
+  document.title = titleText + ' · 姜漓的作品集';
+  const cover = detail.querySelector('template[data-cover="' + id + '"]');
+  poster.src = cover?.content.querySelector('img').src ?? preview.src;
+  const stills = detail.querySelector('template[data-stills="' + id + '"]');
+  detail.querySelector('#stills-title').textContent = stills ? '剧照拼贴' : '剧照拼贴 · 排版示意';
+  stillGrid.classList.toggle('has-stills', Boolean(stills));
+  if (stills) {
+    stillGrid.replaceChildren(stills.content.cloneNode(true));
+  } else {
+    stillGrid.replaceChildren(...crops.map(([position, zoom]) => {
+      const tile = document.createElement('div');
+      const image = document.createElement('img');
+      image.alt = '';
+      image.src = preview.src;
+      tile.style.setProperty('--position', position);
+      tile.style.setProperty('--zoom', zoom);
+      tile.append(image);
+      return tile;
+    }));
+  }
+  window.scrollTo({top: 0, behavior: 'instant'});
+  detailTitle.focus({preventScroll: true});
+}
+
+addEventListener('hashchange', syncProject);
+syncProject();
+const processCarousel = document.querySelector('.process-carousel');
+const processDialog = document.querySelector('.process-lightbox');
+const processImage = processDialog.querySelector('img');
+const processToggle = processCarousel.querySelector('.process-toggle');
+const processTrack = processCarousel.querySelector('.process-track');
+const repeatedStrip = processTrack.firstElementChild.cloneNode(true);
+repeatedStrip.setAttribute('aria-hidden', 'true');
+for (const card of repeatedStrip.querySelectorAll('button')) card.tabIndex = -1;
+processTrack.append(repeatedStrip);
+
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+function setProcessPaused(paused) {
+  processCarousel.classList.toggle('paused', paused);
+  processToggle.setAttribute('aria-label', paused ? '播放轮播' : '暂停轮播');
+  processToggle.querySelector('.process-play-icon').toggleAttribute('hidden', !paused);
+  processToggle.querySelector('.process-pause-icon').toggleAttribute('hidden', paused);
+}
+
+setProcessPaused(reducedMotion.matches);
+processToggle.addEventListener('click', () => setProcessPaused(!processCarousel.classList.contains('paused')));
+processTrack.addEventListener('focusin', () => processCarousel.classList.add('zooming'));
+processTrack.addEventListener('focusout', () => {
+  if (!processDialog.open) processCarousel.classList.remove('zooming');
+});
+
+processTrack.addEventListener('click', event => {
+  const card = event.target.closest('button');
+  if (!card) return;
+  const image = card.querySelector('img');
+  processImage.src = image.src;
+  processImage.alt = image.alt;
+  processCarousel.classList.add('zooming');
+  processDialog.showModal();
+  if (!reducedMotion.matches) {
+    processImage.animate([{transform: 'scale(.85)', opacity: 0}, {transform: 'scale(1)', opacity: 1}], {duration: 220});
+  }
+});
+
+async function closeProcessImage() {
+  if (!processDialog.open || processDialog.dataset.closing) return;
+  processDialog.dataset.closing = 'true';
+  if (!reducedMotion.matches) {
+    await processImage.animate([{transform: 'scale(1)', opacity: 1}, {transform: 'scale(.85)', opacity: 0}], {duration: 170}).finished;
+  }
+  processDialog.close();
+  delete processDialog.dataset.closing;
+}
+
+processDialog.addEventListener('close', () => {
+  processCarousel.classList.remove('zooming');
+});
+processDialog.addEventListener('click', event => {
+  if (event.target !== processImage) closeProcessImage();
+});
+processDialog.addEventListener('cancel', event => {
+  event.preventDefault();
+  closeProcessImage();
+});
+
+const carouselWindow = processCarousel.querySelector('.process-window');
+const carouselCards = [...processTrack.querySelectorAll('button')];
+let centeredCard = null;
+let heldCard = null;
+let previousOffset = null;
+let holdUntil = 0;
+
+function updateCarousel(now) {
+  const viewport = carouselWindow.getBoundingClientRect();
+  const visible = viewport.width && viewport.bottom > 0 && viewport.top < innerHeight;
+
+  if (holdUntil && now >= holdUntil) {
+    processCarousel.classList.remove('center-hold');
+    holdUntil = 0;
+  }
+
+  if (visible) {
+    const center = viewport.left + viewport.width / 2;
+    let closestCard = null;
+    let offset = Infinity;
+    let widthAdjustment = 0;
+    const positions = [];
+    for (const card of carouselCards) {
+      const bounds = card.getBoundingClientRect();
+      const distance = bounds.left + bounds.width / 2 - center;
+      const emphasis = Math.max(0, 1 - Math.abs(distance) / (bounds.width * .95));
+      const eased = emphasis * emphasis * (3 - 2 * emphasis);
+      const scale = reducedMotion.matches ? 1 : .82 + .33 * eased;
+      const widthChange = bounds.width * (scale - 1);
+      positions.push({card, distance, shift: widthAdjustment + widthChange / 2});
+      widthAdjustment += widthChange;
+      card.style.setProperty('--card-scale', scale.toFixed(5));
+      card.style.setProperty('--card-layer', String(Math.round(eased * 10)));
+      if (Math.abs(distance) < Math.abs(offset)) {
+        closestCard = card;
+        offset = distance;
+      }
+    }
+
+    // Keep the visible card edges equally spaced as their sizes change.
+    const rightIndex = positions.findIndex(position => position.distance >= 0);
+    const right = positions[rightIndex] ?? positions.at(-1);
+    const left = positions[rightIndex - 1] ?? right;
+    const span = right.distance - left.distance;
+    const blend = span > 0 ? -left.distance / span : 0;
+    const anchor = left.shift + (right.shift - left.shift) * blend;
+    for (const position of positions) {
+      position.card.style.setProperty('--card-shift', (position.shift - anchor) + 'px');
+    }
+
+    const crossedCenter = closestCard === centeredCard && previousOffset > 0 && offset <= 0;
+    const playing = !processCarousel.matches('.paused, .zooming, .center-hold');
+    if (!reducedMotion.matches && playing && closestCard !== heldCard &&
+        (Math.abs(offset) <= 1.5 || crossedCenter)) {
+      heldCard = closestCard;
+      holdUntil = now + 1000;
+      processCarousel.classList.add('center-hold');
+    }
+    centeredCard = closestCard;
+    previousOffset = offset;
+  }
+  requestAnimationFrame(updateCarousel);
+}
+
+requestAnimationFrame(updateCarousel);
+const graveSection = document.querySelector('.grave-gallery');
+const graveStage = graveSection.querySelector('.grave-stage');
+const graveCards = [...graveStage.children];
+let graveProgress = 0;
+const graveWaves = [];
+const graveMotion = matchMedia('(prefers-reduced-motion: reduce)');
+const blend = (a, b, t) => a + (b - a) * t;
+const smooth = value => value * value * (3 - 2 * value);
+const clampGrave = value => Math.max(0, Math.min(1, value));
+const scattered = [
+  [-.20, -.22, -12, -16], [.19, -.20, 10, 17],
+  [-.25, .015, 9, 19], [.24, .025, -10, -18],
+  [-.17, .23, -8, -10], [.18, .22, 12, 13],
+];
+function drawGraveGallery(now) {
+  if (detail.dataset.id === '3') {
+    const box = graveSection.getBoundingClientRect();
+    const progress = clampGrave(-box.top / (box.height - innerHeight));
+    graveProgress = progress;
+    const scatterEffect = 1 - smooth(clampGrave((progress - .12) / .25));
+    const gather = smooth(clampGrave((progress - .12) / .25));
+    const unfold = smooth(clampGrave((progress - .68) / .22));
+    const turn = clampGrave((progress - .37) / .31);
+    const width = graveStage.clientWidth;
+    const height = graveStage.clientHeight;
+    const gap = 8;
+    const finalWidth = Math.min((width * .9 - gap * 2) / 3, height * .67);
+    const cardWidth = blend(Math.min(width * .26, height * .32), finalWidth, unfold);
+    const cardHeight = cardWidth * 9 / 16;
+    graveStage.style.setProperty('--grave-card-width', cardWidth + 'px');
+    graveCards.forEach((card, index) => {
+      const phase = index * 2.399;
+      const drift = graveMotion.matches ? 0 : Math.sin(now / 4000 + phase);
+      const initial = scattered[index];
+      const angle = index / 6 * Math.PI * 2 + turn * Math.PI * 2;
+      const radius = Math.min(width * .23, 290);
+      const floating = {
+        x: initial[0] * width + drift * 7,
+        y: initial[1] * height,
+        z: Math.sin(phase) * 65,
+        ry: initial[3] + drift * 4,
+        rx: 0,
+        rz: initial[2],
+      };
+      const album = {
+        x: Math.sin(angle) * radius,
+        y: Math.cos(angle) * 20,
+        z: Math.cos(angle) * radius - radius * .35,
+        ry: angle * 180 / Math.PI,
+        rx: 9,
+        rz: 0,
+      };
+      const grid = {
+        x: (index % 3 - 1) * (finalWidth + gap),
+        y: (Math.floor(index / 3) - .5) * (finalWidth * 9 / 16 + gap),
+        z: 0, ry: Math.round(album.ry / 360) * 360, rx: 0, rz: 0,
+      };
+      const position = {};
+      for (const key of Object.keys(floating)) {
+        position[key] = blend(blend(floating[key], album[key], gather), grid[key], unfold);
+      }
+      let waveOffset = 0;
+      for (const wave of graveWaves) {
+        const age = (now - wave.time) / 1000;
+        const distance = Math.hypot(width / 2 + position.x - wave.x, height / 2 + position.y - wave.y);
+        const front = distance - age * 110;
+        waveOffset += Math.sin(front / 11) * Math.exp(-Math.pow(front / 25, 2)) * Math.exp(-age * 3) * Math.exp(-distance / 80) * 5;
+      }
+      position.y += waveOffset * scatterEffect;
+      position.rx += waveOffset * scatterEffect * .5;
+      card.style.setProperty('--edge-wear', String(scatterEffect));
+      card.style.setProperty('--edge-mask', 'radial-gradient(ellipse at center, #000 ' + (100 - scatterEffect * 49) + '%, transparent 100%)');
+      card.style.setProperty('--inward-blur', (scatterEffect * 2.3) + 'px');
+      card.style.setProperty('--inward-fade', String(scatterEffect));
+      const directionX = -position.x;
+      const directionY = -position.y;
+      card.style.setProperty('--inward-angle', (Math.atan2(directionX, -directionY) * 180 / Math.PI) + 'deg');
+      card.style.transform = 'translate3d(' + position.x + 'px,' + position.y + 'px,' + position.z + 'px) rotateX(' + position.rx + 'deg) rotateY(' + position.ry + 'deg) rotateZ(' + position.rz + 'deg)';
+      card.style.marginTop = -cardHeight / 2 + 'px';
+      card.style.filter = 'url(#grave-clarity)';
+    });
+  }
+  while (graveWaves.length && now - graveWaves[0].time > 2600) graveWaves.shift();
+  requestAnimationFrame(drawGraveGallery);
+}
+requestAnimationFrame(drawGraveGallery);
+
+
+for (const card of graveCards) {
+  const original = card.querySelector('img');
+  const blurred = original.cloneNode();
+  blurred.alt = '';
+  blurred.setAttribute('aria-hidden', 'true');
+  blurred.classList.add('grave-inward-blur');
+  card.append(blurred);
+}
+graveStage.addEventListener('pointerdown', event => {
+  if (graveProgress > .3 || graveMotion.matches) return;
+  const box = graveStage.getBoundingClientRect();
+  graveWaves.push({x: event.clientX - box.left, y: event.clientY - box.top, time: performance.now()});
+  const ripple = document.createElement('span');
+  ripple.className = 'grave-ripple';
+  ripple.style.left = (event.clientX - box.left) + 'px';
+  ripple.style.top = (event.clientY - box.top) + 'px';
+  graveStage.append(ripple);
+  ripple.addEventListener('animationend', () => ripple.remove(), {once: true});
+});
+const inkHero = document.querySelector('.hero');
+inkHero.innerHTML = '<h1 class="ink-title">Li\'s portfolio</h1><canvas class="ink-canvas" aria-hidden="true"></canvas><a class="hint" href="#works">作品索引 ↓</a>';
+const inkCanvas = inkHero.querySelector('canvas');
+const inkContext = inkCanvas.getContext('2d');
+const inkArt = new Image();
+inkArt.src = 'assets/13730146225b7df9eff2.png';
+let inkWidth = 0, inkHeight = 0;
+let inkPointer = null;
+let inkTrail = [];
+let inkLastFrame = 0;
+const whiteInkArt = document.createElement('canvas');
+inkArt.onload = () => {
+  whiteInkArt.width = inkArt.naturalWidth;
+  whiteInkArt.height = inkArt.naturalHeight;
+  const context = whiteInkArt.getContext('2d');
+  context.drawImage(inkArt, 0, 0);
+  context.globalCompositeOperation = 'source-in';
+  context.fillStyle = '#ffffff';
+  context.fillRect(0, 0, whiteInkArt.width, whiteInkArt.height);
+};
+function sizeInkTitle() {
+  inkWidth = inkHero.clientWidth;
+  inkHeight = inkHero.clientHeight;
+  const ratio = Math.min(devicePixelRatio || 1, 2);
+  inkCanvas.width = inkWidth * ratio;
+  inkCanvas.height = inkHeight * ratio;
+  inkContext.setTransform(ratio, 0, 0, ratio, 0, 0);
+}
+function inkContour(point, now) {
+  const age = (now - point.time) / 1300;
+  const radius = Math.max(38, inkWidth * .075) * Math.min(1.8, .6 + age * 2) * Math.max(0, 1 - age);
+  const path = new Path2D();
+  const points = [];
+  for (let i = 0; i <= 64; i++) {
+    const angle = i / 64 * Math.PI * 2;
+    const rough = 1 + .08 * Math.sin(angle * 3 + now / 1900) + .04 * Math.cos(angle * 5 - now / 2200);
+    const x = point.x + Math.cos(angle) * radius * rough;
+    const y = point.y + Math.sin(angle) * radius * rough;
+    if (i < 64) points.push({x, y});
+  }
+  const last = points.at(-1);
+  path.moveTo((last.x + points[0].x) / 2, (last.y + points[0].y) / 2);
+  points.forEach((point, index) => {
+    const next = points[(index + 1) % points.length];
+    path.quadraticCurveTo(point.x, point.y, (point.x + next.x) / 2, (point.y + next.y) / 2);
+  });
+  path.closePath();
+  return path;
+}
+function drawInkTitle(now) {
+  inkContext.clearRect(0, 0, inkWidth, inkHeight);
+  inkContext.fillStyle = '#171513';
+  inkContext.font = Math.floor(inkWidth * .153) + 'px "Times New Roman"';
+  inkContext.textAlign = 'center';
+  inkContext.textBaseline = 'middle';
+  inkContext.fillText("Li's portfolio", inkWidth / 2, inkHeight * .52, inkWidth * .92);
+  if (inkPointer) {
+    const previous = inkTrail.at(-1) || inkPointer;
+    const distance = Math.hypot(inkPointer.x - previous.x, inkPointer.y - previous.y);
+    const count = Math.max(1, Math.min(100, Math.ceil(distance / 5)));
+    for (let i = 1; i <= count; i++) {
+      inkTrail.push({
+        x: previous.x + (inkPointer.x - previous.x) * i / count,
+        y: previous.y + (inkPointer.y - previous.y) * i / count,
+        time: now,
+      });
+    }
+  }
+  inkTrail = inkTrail.filter(point => now - point.time < 1300);
+  if (inkTrail.length) {
+    const mask = new Path2D();
+    for (const point of inkTrail) mask.addPath(inkContour(point, now));
+    inkContext.save();
+    inkContext.clip(mask);
+    // Opaque replacement ensures the two letterforms never show through each other.
+    inkContext.fillStyle = '#171513';
+    inkContext.fillRect(0, 0, inkWidth, inkHeight);
+    if (whiteInkArt.width) {
+      const width = inkWidth * .98;
+      const height = width * inkArt.naturalHeight / inkArt.naturalWidth;
+      inkContext.drawImage(whiteInkArt, (inkWidth - width) / 2, inkHeight * .52 - height / 2, width, height);
+    }
+    inkContext.restore();
+  }
+  requestAnimationFrame(drawInkTitle);
+}
+inkHero.addEventListener('pointermove', event => {
+  const box = inkHero.getBoundingClientRect();
+  inkPointer = {x: event.clientX - box.left, y: event.clientY - box.top};
+});
+inkHero.addEventListener('pointerleave', () => { inkPointer = null; });
+inkHero.addEventListener('pointerup', event => { if (event.pointerType !== 'mouse') inkPointer = null; });
+sizeInkTitle();
+requestAnimationFrame(drawInkTitle);
+addEventListener('resize', sizeInkTitle);
+</script>
+</body>
+</html>
